@@ -9,7 +9,7 @@
 ]>
 <rfc xmlns:xi="http://www.w3.org/2001/XInclude" category="info" docName="draft-many-dnsop-dns-isolated-networks-00" ipr="trust200902" obsoletes="" updates="" submissionType="IETF" xml:lang="en" version="3">
   <front>
-    <title abbrev="DNS in Isolated Networks">Domain Name System in Mostly Isolated Networks</title>
+    <title abbrev="DNS in Isolated Networks">Domain Name System(DNS) in Mostly Isolated Networks</title>
     <seriesInfo name="Internet-Draft" value="draft-many-dnsop-dns-isolated-networks-00"/>
     <author fullname="Marc Blanchet" initials="MB">
       <organization>Viagenie</organization>
@@ -27,14 +27,14 @@
     <keyword>dns</keyword>
     <keyword>space</keyword>
     <abstract>
-      <t>This document lists operational methods to enable local DNS name resolving on an isolated network, where that target network may have intermittent reachability to Internet and/or have very long delays, disabling the real-time query and response flow to the authoritative name servers on Internet.</t>
+      <t>This document lists operational methods to enable local DNS name resolving on an isolated network, where that network have intermittent reachability to Internet and/or have very long delays, disabling the real-time query and response flow to the authoritative name servers on Internet.</t>
     </abstract>
   </front>
   <middle>
     <section>
       <name>Introduction</name>
-      <t>Deep space communications involve long delays (e.g. Earth to Mars is 4-20 minutes) and intermittent communications, because of orbital dynamics. <xref target="ip-in-deep-space"/> discusses the use of the whole IP stack in this context. Domain name requests and response over long delays generate timeouts and when there is no reachability to the DNS server, requests will not be answered. Therefore, on celestial bodies IP networks, a local DNS infrastructure with all the needed names and values stored locally is needed. Moreover, to keep the same DNS root and the current DNSSEC trust chain, all keys necessary for validation should also be stored locally. This document describes the different ways to accomplish this.</t>
-      <t>While this document uses deep space as the base use case, it applies to other "mostly" isolated networks. Mostly isolated means that most of the time the network is isolated, but there are times where it is not isolated and then may receive zone transfers or other means to populate or update its name caches. In case of deep space, the delays for those transfers is significant and the transport mechanisms are more limited, as discussed in <xref target="ip-in-deep-space"/>.</t>
+      <t>Deep space communications involve long delays (e.g. Earth to Mars is 4-20 minutes) and intermittent communications, because of orbital dynamics. <xref target="I-D.many-deepspace-ip-assessment"/> discusses the use of the whole IP stack in this context. Domain name requests and response over long delays generate timeouts and when there is no reachability to the DNS server, requests will not be answered. Therefore, on celestial bodies IP networks, a local DNS infrastructure with all the needed names and values stored locally is needed. Moreover, to keep the same DNS root and the current DNSSEC trust chain, all keys necessary for validation should also be stored locally. This document describes the different ways to accomplish this.</t>
+      <t>While this document uses deep space as the base use case, it applies to other "mostly" isolated networks. Mostly isolated means that most of the time the network is isolated, but there are times where it is not isolated and then may receive zone transfers or other means to populate or update its name caches. In case of deep space, the delays for those transfers is significant and the transport mechanisms are more limited, as discussed in <xref target="I-D.many-deepspace-ip-assessment"/>.</t>
       <t>The requirements and characteristics for this document use case are:</t>
       <ul>
         <li>domains under the unique DNS root<xref target="RFC2826"/></li>
@@ -58,7 +58,7 @@
       <t>All approaches share similar naming infrastructure on the target isolated network:</t>
       <ul>
         <li>One or more authoritative name server.</li>
-        <li>One or more resolvers using the above authoritative servers in their hints/cache file.</li>
+        <li>One or more resolvers using the above authoritative servers (or additional servers) in their hints/cache file.</li>
         <li>hosts using the above resolvers.</li>
         <li>DNSSEC verifying resolvers have the root trust anchor<xref target="trust-anchor"/> in their configuration.</li>
       </ul>
@@ -78,19 +78,22 @@
         <name>Pre-fetch of all zones in the needed name hierarchy</name>
         <t>If one assumes that the name hierarchy is known for all needed names used on the isolated network and if the operator of the DNS infrastructure on the isolated network has access to all the zones of the hierarchy, then these zones are saved. They may need to be modified so that the NS glue records point to the appropriate local authoritative name servers. These zones are then uploaded to the authoritative name servers on the isolated network.</t>
         <t>The authoritative name servers should serve the root zone and all zones as discussed above.</t>
-        <t>This approach have less risk of missing a name since all names under the hierarchy are uploaded. However, if the zones are too big compared to the transfer capacity to the isolated network, then this solution is not appropriate. Moreover, it may be possible that most of the names in the uploaded zones will not be used, therefore it is a possible waste of resources (bandwidth, memory/cpu on server, ...). Therefore, careful consideration on the chosen hierarchy, specially the top-level domain, is relevant. However, it is possible to remove all the non-needed recoard from the zones before uploading them to the isolated network DNS infrastructure, but then if some names are missing in this removal, the same issues from the previous approach appear.</t>
+        <t>This approach have less risk of missing a name since all names under the hierarchy are uploaded. However, if the zones are too big compared to the transfer capacity to the isolated network, then this solution is not appropriate. Moreover, it may be possible that most of the names in the uploaded zones will not be used, therefore it is a possible waste of resources (bandwidth, memory/cpu on server, ...). Therefore, careful consideration on the chosen hierarchy, specially the top-level domain, is relevant. Given deep space relative limited use networks, it would make sense to dedicate some top-level domain or subdomain for its needs. However, it is possible to remove all the non-needed recoard from the zones before uploading them to the isolated network DNS infrastructure, but then if some names are missing in this removal, the same issues from the previous approach appear.</t>
+        <t>If all needed DNSSEC material is not fully uploaded, then DNSSEC validation will fail.</t>
+        <t>A method for syncing and updating all the updated records to the isolated network should be put in place, at the appropriate frequency. It could be done using zone tranfer mechanism if TCP/IP reachability is possible but other file transfer mechanisms may also be used.</t>
         <t>In the context of multiple operators on the target network, each one may do this process independently for its own zones, without having to rely on another party.</t>
       </section>
     </section>
     <section>
       <name>Zone Transfer Coniderations</name>
       <t>If DNS zone transfer is possible over the link between the Internet and the isolated network, then incremental zone transfer (aka IXFR) might be advised to minimize the use of the bandwidth and also minimize the data merge on the target DNS server.</t>
-      <t>If DNS zone transfer is not possible or not optimal, than various mechanisms such as FTP, ssh, git, rsync may be used.</t>
+      <t>If DNS zone transfer is not possible or not optimal, than various file transfer mechanisms such as FTP, ssh, git, rsync may be used.</t>
     </section>
     <section>
-      <name>DNSSEC Coniderations</name>
-      <t>Zones are signed at various frequencies based on the operator policies. If a signature on a record has expired, then DNSSEC validation will fail. Therefore, the frequency of uploading updated records should be faster than the frequency of the signing of the uploaded zones.</t>
+      <name>DNSSEC Considerations</name>
+      <t>Zones are signed at various frequencies based on the operator policies. If a signature on a record has expired, then DNSSEC validation will fail. Therefore, the frequency of uploading updated records should be higher than the frequency of the signing of the uploaded zones.</t>
       <t>Similarly, the key lifetimes, including the root zone anchor, should be monitored to make sure that new keys are uploaded before the old ones expire.</t>
+      <t>Finally, the DNSSEC RR TTL values need to be longer than the update times.</t>
     </section>
     <section>
       <name>Network Operations Considerations</name>
@@ -125,20 +128,12 @@
             </author>
           </front>
         </reference>
-        <reference anchor="ip-in-deep-space" target="https://datatracker.ietf.org/doc/html/draft-many-intarea-ip-in-deep-space/">
-          <front>
-            <title>Revisiting the Use of the IP Protocol Stack in Deep Space: Assessment and Possible Solutions</title>
-            <author initials="M." surname="Blanchet" fullname="Marc Blanchet">
-              <organization>Viagenie</organization>
-            </author>
-          </front>
-          <seriesInfo name="Internet-Draft" value="draft-many-intarea-ip-in-deep-space"/>
-        </reference>
+        <xi:include href="https://bib.ietf.org/public/rfc/bibxml3/reference.I-D.many-deepspace-ip-assessment.xml"/>
       </references>
     </references>
     <section anchor="Acknowledgements" numbered="false">
       <name>Acknowledgements</name>
-      <t>This document and its underlying work has been extensively reviewed by many, who have provided valuable feedback and comments, and made an overall more solid document. These people are, in no specific order:  .</t>
+      <t>The "pre-walk of all needed names" section is an idea from Warren Kumari: all errors are mine. Reviewers of this document are: TBD .</t>
     </section>
   </back>
 </rfc>
