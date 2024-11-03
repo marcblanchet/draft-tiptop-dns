@@ -7,10 +7,10 @@
 <!ENTITY nbhy "&#8209;">
 <!ENTITY wj "&#8288;">
 ]>
-<rfc xmlns:xi="http://www.w3.org/2001/XInclude" category="info" docName="draft-many-dnsop-dns-isolated-networks-00" ipr="trust200902" obsoletes="" updates="" submissionType="IETF" xml:lang="en" version="3">
+<rfc xmlns:xi="http://www.w3.org/2001/XInclude" category="info" docName="draft-many-deepspace-dns-isolated-networks-00" ipr="trust200902" obsoletes="" updates="" submissionType="IETF" xml:lang="en" version="3">
   <front>
-    <title abbrev="DNS in Isolated Networks">Domain Name System(DNS) in Mostly Isolated Networks</title>
-    <seriesInfo name="Internet-Draft" value="draft-many-dnsop-dns-isolated-networks-00"/>
+    <title abbrev="DNS in Isolated Networks">Domain Name System in Mostly Isolated Networks</title>
+    <seriesInfo name="Internet-Draft" value="draft-many-deepspace-dns-isolated-networks-00"/>
     <author fullname="Marc Blanchet" initials="MB">
       <organization>Viagenie</organization>
       <address>
@@ -20,14 +20,14 @@
         <email>marc.blanchet@viagenie.ca</email>
       </address>
     </author>
-    <date year="2023"/>
     <area>Internet</area>
     <workgroup>Internet Engineering Task Force</workgroup>
     <keyword>dtn</keyword>
     <keyword>dns</keyword>
     <keyword>space</keyword>
+    <keyword>deep space</keyword>
     <abstract>
-      <t>This document lists operational methods to enable local DNS name resolving on an isolated network, where that network have intermittent reachability to Internet and/or have very long delays, disabling the real-time query and response flow to the authoritative name servers on Internet.</t>
+      <t>This document lists operational methods to enable local DNS name resolving on an isolated network, where that network have intermittent reachability to Internet and/or have very long delays, such as deep space networks, disabling the real-time query and response flow to the authoritative name servers on Internet.</t>
     </abstract>
   </front>
   <middle>
@@ -53,7 +53,7 @@
       </section>
     </section>
     <section>
-      <name>Different Approaches</name>
+      <name>Possible Approaches</name>
       <t>This section presents various approaches that should meet the requirements set in the previous section. These approaches use the <xref target="RFC8806"/> approach for root zones, but augment it for the whole needed name hierarchy.</t>
       <t>All approaches share similar naming infrastructure on the target isolated network:</t>
       <ul>
@@ -82,6 +82,11 @@
         <t>If all needed DNSSEC material is not fully uploaded, then DNSSEC validation will fail.</t>
         <t>A method for syncing and updating all the updated records to the isolated network should be put in place, at the appropriate frequency. It could be done using zone tranfer mechanism if TCP/IP reachability is possible but other file transfer mechanisms may also be used.</t>
         <t>In the context of multiple operators on the target network, each one may do this process independently for its own zones, without having to rely on another party.</t>
+      </section>
+      <section>
+          <name>Special zone</name>
+          <t>Instead of fetching a whole zone containing a lot of non useful records, the manager of that zone creates a special version of the zone containing only the useful records and sign it. It is then sent to the isolated network DNS infrastructure. This approach is a combination of the previous approaches, but require careful management of the two versions of the zone. In terms of deployment and operations, it has the same properties as the zone pre-fetch approach.
+          </t>
       </section>
     </section>
     <section>
@@ -133,7 +138,7 @@
     </references>
     <section anchor="Acknowledgements" numbered="false">
       <name>Acknowledgements</name>
-      <t>The "pre-walk of all needed names" section is an idea from Warren Kumari: all errors are mine. Reviewers of this document are: TBD .</t>
+      <t>The idea of the pre-walk was suggested by Warren Kumari. The idea of a special zone was suggested by Mark Andrews. All errors are authors'.</t>
     </section>
   </back>
 </rfc>
