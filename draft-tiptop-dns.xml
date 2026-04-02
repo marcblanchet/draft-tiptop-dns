@@ -70,6 +70,7 @@
         <li>DNSSEC verifying resolvers have the root trust anchor<xref target="trust-anchor"/> in their configuration.</li>
       </ul>
       <t>"Target network" used in this document means the celestial body network.</t>
+      <t>It should be noted that, with proper planning and careful consideration, these approaches are not exclusive and may be deployed over time.</t>
       <section>
         <name>Pre-walk of all needed names</name>
         <t>If one assumes that all names that will be used on the target network are known in advance, then queries walking the tree from the root down to the final name of all needed names can be done on Internet and the responses saved in a file, together with the appropriate DNSSEC records (TBD: should we list those: aka RRSIG, DS, DNSKEY). The records should contain values that are relevant to the celestial body network. For example, an IP address record such as an A or AAAA record should resolve to an IP address relevant and reachable on the target network.</t>
