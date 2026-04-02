@@ -149,9 +149,27 @@
         <xi:include href="https://bib.ietf.org/public/rfc/bibxml3/reference.I-D.many-tiptop-ip-architecture.xml"/>
       </references>
     </references>
+    <section anchor="alternative-approaches" numbered="true">
+      <name>Alternative Name Resolution Approaches</name>
+      <t>Alternatives of using DNS include static distribution of name-to-address mappings and the direct use of IP addresses without names.
+      </t>
+      <t>TIPTOP nodes MAY be provisioned with static host name mappings (e.g., "hosts.txt"-style files), enabling local resolution without network queries. Updates are distributed periodically through TBD out-of-band mechanisms between celestial networks and Earth-based infrastructure.
+      </t>
+      <t>In small or constrained celestial networks, applications MAY use IP addresses directly, avoiding any naming system. This removes resolution dependencies entirely but reduces flexibility, human usability, error prone by typing IPv6 addresses, and abstraction from addressing changes. It will also disable the use of a large variety of DNS record types.
+      </t>
+      <t>These approaches are simple and robust to disconnection, but do not scale to large or dynamic TIPTOP deployments, introduce update latency (for static mappings), and lack DNS capabilities such as delegation, hierarchical naming, record types, caching control, and DNSSEC.
+      </t>
+      <t>Operators of TIPTOP deployments SHOULD consider namespace size and dynamics, update distribution frequency between celestial networks and Earth-based infrastructure, administrative boundaries, and data integrity mechanisms. Static or IP-only approaches MAY be sufficient for small, stable celestial networks, but DNS-based solutions provide greater flexibility for larger or evolving TIPTOP deployments.
+      </t>
+      <t>Hybrid models can combine static distribution of a small set of nodes in a static mapping file such as /etc/hosts with DNS-based mechanisms. For example, nodes may be provisioned with hosts files for critical infrastructure, while DNS data is distributed as discussed in this document, with a name resolution preference set properly.
+      </t>
+      <t>
+        Static distribution mechanisms provide simplicity and robustness under extreme delay and intermittence, but at the cost of scalability and functionality. DNS, when adapted for deep space conditions, offers a more general and extensible solution.
+      </t>
+    </section>
     <section anchor="Acknowledgements" numbered="false">
       <name>Acknowledgements</name>
-      <t>The idea of the pre-walk was suggested by Warren Kumari. The idea of a special zone was suggested by Mark Andrews. All errors are authors'.</t>
+      <t>The idea of the pre-walk was suggested by Warren Kumari. The idea of a special zone was suggested by Mark Andrews. All errors are authors'. The following people have provided valuable feedback and comments, in no specific order: Lloyd Wood, Warren Kumari.</t>
     </section>
   </back>
 </rfc>
