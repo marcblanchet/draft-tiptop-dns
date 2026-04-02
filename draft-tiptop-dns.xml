@@ -7,10 +7,10 @@
 <!ENTITY nbhy "&#8209;">
 <!ENTITY wj "&#8288;">
 ]>
-<rfc xmlns:xi="http://www.w3.org/2001/XInclude" category="info" docName="draft-many-tiptop-dns-00" ipr="trust200902" obsoletes="" updates="" submissionType="IETF" xml:lang="en" version="3">
+<rfc xmlns:xi="http://www.w3.org/2001/XInclude" category="info" docName="draft-many-tiptop-dns-01" ipr="trust200902" obsoletes="" updates="" submissionType="IETF" xml:lang="en" version="3">
   <front>
     <title abbrev="DNS in Deep Space">Deployment and Use of the Domain Name System(DNS) in Deep Space</title>
-    <seriesInfo name="Internet-Draft" value="draft-many-tiptop-dns-00"/>
+    <seriesInfo name="Internet-Draft" value="draft-many-tiptop-dns-01"/>
     <author fullname="Marc Blanchet" initials="MB">
       <organization>Viagenie</organization>
       <address>
@@ -49,14 +49,15 @@
     </section>
       <section>
           <name>Use Case and Requirements</name>
-          <t>Given all the investment in technology, protocol, services, infrastructure, scrutiny and governance in place, the ability to use the current Internet DNS Root with DNSSEC even in deep space has a lot of merit compared to starting another root with another trust chain. In order to achive that goal, which is to keep the same DNS root and the current DNSSEC trust chain in deep space, domain data and all related keys necessary for local validation should also be stored locally.</t>
+          <t>Given all the investment in technology, protocol, services, infrastructure, scrutiny and governance in place, the ability to use the current Internet DNS Root with DNSSEC<xref target="RFC9364"/> even in deep space has a lot of merit compared to starting another root with another trust chain. In order to achieve that goal, which is to keep the same DNS root and the current DNSSEC trust chain in deep space, domain data and all related keys necessary for local validation should also be stored locally.</t>
             <t>The requirements and characteristics for this document use case are:</t>
             <ul>
-              <li>domains are under the unique DNS root<xref target="RFC2826"/></li>
-              <li>the DNS root is deployed under some agreed community requirements<xref target="RFC7720"/></li>
+              <li>inability to do real-time DNS queries to the Internet DNS infrastructure from space</li>
+              <li>domains used in deep space are under the same unique DNS root<xref target="RFC2826"/>, deployed under agreed community requirements<xref target="RFC7720"/></li>
               <li>ability to sometimes reach the celestial body network name servers from Earth Internet to update their data cache</li>
-              <li>inability to do live DNS queries to the Internet DNS infrastructure from space</li>
               <li>multiple network and DNS operators may exist on the celestial body network, each managing their own namespace and/or caches</li>
+              <li>management of DNS servers and zones are done from Earth, since no human is expected to do server administration on celestial body network</li>
+              <li>Celestial body network autonomous DNS infrastructure to enable local resolution and DNSSEC validation</li>
             </ul>
       </section>
     <section>
@@ -73,7 +74,7 @@
       <t>It should be noted that, with proper planning and careful consideration, these approaches are not exclusive and may be deployed over time.</t>
       <section>
         <name>Pre-walk of all needed names</name>
-        <t>If one assumes that all names that will be used on the target network are known in advance, then queries walking the tree from the root down to the final name of all needed names can be done on Internet and the responses saved in a file, together with the appropriate DNSSEC records (TBD: should we list those: aka RRSIG, DS, DNSKEY). The records should contain values that are relevant to the celestial body network. For example, an IP address record such as an A or AAAA record should resolve to an IP address relevant and reachable on the target network.</t>
+        <t>If one assumes that all names that will be used on the target network are known in advance, then queries walking the tree from the root down to the final name of all needed names can be done on Internet and the responses saved in a file, together with the appropriate DNSSEC records (TBD: should we list those: aka RRSIG, DS, DNSKEY). The records should contain values that are relevant to the celestial body network. For example, an IP address record such as an A or AAAA record should resolve to an IP address relevant and reachable from the target network.</t>
         <t>The resulting file containing all the records is uploaded to the authoritative name servers on the target network. </t>
         <t>The authoritative name servers should serve the root zone and all required domain tree records underneath as found above.</t>
         <t>If a name used on the celestial body network by the hosts or applications is not in the uploaded file served by the local name servers, then the request will timeout.</t>
@@ -96,11 +97,17 @@
           <t>Instead of fetching a whole zone containing a lot of non useful records, the manager of that zone creates a special version of the zone containing only the useful records and sign it. It is then sent to the target network DNS infrastructure. This approach is a combination of the previous approaches, but require careful management of the two versions of the zone. In terms of deployment and operations, it has the same properties as the zone pre-fetch approach.
           </t>
       </section>
+      <section>
+          <name>Local zones</name>
+          <t>Local zones can be deployed on the target networks. However, they may not be secured by DNSSEC. Moreover, the danger of name collision over time with the Earth Internet DNS can create a big operational issue later.
+          </t>
+      </section>
     </section>
     <section>
       <name>Zone Transfer Considerations</name>
       <t>If DNS zone transfer is possible over the link between the Internet and the target network, then incremental zone transfer (aka IXFR) might be advised to minimize the use of the bandwidth and also minimize the data merge on the target DNS server.</t>
-      <t>If DNS zone transfer is not possible or not optimal, than another file transfer mechanism should be used.</t>
+      <t>Current zone transfer mechanisms, such as AXFR, IXFR, rsync or ftp, all use TCP as transport. However, TCP is not suitable for deep space. Therefore, it is recommended to use AXFR/IXFR over profiled<xref target="I-D.many-tiptop-quic-profile"/> QUIC<xref target="RFC9250"/>.</t>
+      <t>If DNS zone transfer is not possible or not optimal, than another file transfer mechanism such as HTTP over QUIC should be used.</t>
     </section>
     <section>
       <name>DNSSEC Considerations</name>
@@ -132,12 +139,14 @@
         <name>Normative References</name>
         <xi:include href="https://www.rfc-editor.org/refs/bibxml/reference.RFC.2119.xml"/>
         <xi:include href="https://www.rfc-editor.org/refs/bibxml/reference.RFC.8174.xml"/>
+        <xi:include href="https://www.rfc-editor.org/refs/bibxml/reference.RFC.9364.xml"/>
       </references>
       <references>
         <name>Informative References</name>
         <xi:include href="https://www.rfc-editor.org/refs/bibxml/reference.RFC.2826.xml"/>
         <xi:include href="https://www.rfc-editor.org/refs/bibxml/reference.RFC.7720.xml"/>
         <xi:include href="https://www.rfc-editor.org/refs/bibxml/reference.RFC.8806.xml"/>
+        <xi:include href="https://www.rfc-editor.org/refs/bibxml/reference.RFC.9250.xml"/>
         <reference anchor="trust-anchor" target="https://www.iana.org/dnssec/files">
           <front>
             <title>Trust Anchors and Keys</title>
@@ -147,6 +156,7 @@
           </front>
         </reference>
         <xi:include href="https://bib.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-tiptop-usecase.xml"/>
+        <xi:include href="https://bib.ietf.org/public/rfc/bibxml3/reference.I-D.many-tiptop-quic-profile.xml"/>
         <xi:include href="https://bib.ietf.org/public/rfc/bibxml3/reference.I-D.many-tiptop-ip-architecture.xml"/>
       </references>
     </references>
