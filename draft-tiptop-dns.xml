@@ -34,7 +34,7 @@
     <section>
       <name>Introduction</name>
       <t>Deep space communications involve long delays (e.g., Earth to Mars has one-way delays 4-24 minutes) and intermittent communications, mainly because of orbital dynamics. To illustrate a simple example of intermittence, communications may be between a ground station on Earth to an asset on a planet through the use of an orbiter around that planet. That orbiter may have an overpass of 20 minutes every 2 hours. Therefore, continuous connectivity between the two endpoints cannot be assumed. However, as discussed in <xref target="I-D.many-tiptop-ip-architecture"/>, orbiters may temporarily store IP packets until the next communication window with the next hop appears. From the standpoint of the transport or upper application protocols, the one-way delay and the RTT will be stable while direct connectivity happens, and then jump to a large value while the orbiter is not reachable anymore, until it becomes reachable again. In some cases, where the asset is on a shadow side of a planet or Moon and while there is no full constellation of orbiters providing connectivity all around, the asset and Earth ground may never or rarely have a uninterrupted end2end path.
-        <xref target="I-D.many-tiptop-usecase"/> provides more details about key characteristics of deep space communications and the use case of networking. </t>
+        <xref target="I-D.ietf-tiptop-usecase"/> provides more details about key characteristics of deep space communications and the use case of networking. </t>
       <t><xref target="I-D.many-tiptop-ip-architecture"/> discusses the use of the whole IP stack in this context. Domain name requests and response over long delays generate timeouts and when there is no reachability to the DNS server, requests will not be answered. Therefore, on celestial bodies IP networks, a local DNS infrastructure with all the needed names and values stored locally is needed. </t>
       <t>While this document uses deep space as the base use case, it may apply to other "mostly" isolated networks, such as IoT networks. Mostly isolated means that most of the time the network is isolated, but there are times where it is not isolated and then may receive zone transfers or other means to populate or update its name caches.</t>
       <section anchor="requirements">
@@ -109,7 +109,7 @@
     </section>
     <section>
         <name>Crusing Spacecraft Considerations</name>
-        <t>This document assumes a minimal infrastructure on a celestial body surface and vicinty network. As discussed in <xref target="I-D.many-tiptop-usecase"/>, there are other instances of IP networks in deep space. One of them is a cruising spacecraft which has non-continuous connectivity to Earth using a direct point-to-point link to Earth ground stations. A cruising spacecraft typically have a local IP network to connect the various payloads and computers together. Names may be used on the onboard network, either by a simple infrastructure as described in this document, or by other simpler means such as a static file distributed on all on-board computers. When the spacecraft lands or connects to an infrastructure network such as a celestial body surface network, some names may need to be updated to use the local DNS infrastructure. The transition is not discussed in this document.</t>
+        <t>This document assumes a minimal infrastructure on a celestial body surface and vicinty network. As discussed in <xref target="I-D.ietf-tiptop-usecase"/>, there are other instances of IP networks in deep space. One of them is a cruising spacecraft which has non-continuous connectivity to Earth using a direct point-to-point link to Earth ground stations. A cruising spacecraft typically have a local IP network to connect the various payloads and computers together. Names may be used on the onboard network, either by a simple infrastructure as described in this document, or by other simpler means such as a static file distributed on all on-board computers. When the spacecraft lands or connects to an infrastructure network such as a celestial body surface network, some names may need to be updated to use the local DNS infrastructure. The transition is not discussed in this document.</t>
     </section>
     <section>
       <name>Network Operations Considerations</name>
@@ -145,7 +145,7 @@
             </author>
           </front>
         </reference>
-        <xi:include href="https://bib.ietf.org/public/rfc/bibxml3/reference.I-D.many-tiptop-usecase.xml"/>
+        <xi:include href="https://bib.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-tiptop-usecase.xml"/>
         <xi:include href="https://bib.ietf.org/public/rfc/bibxml3/reference.I-D.many-tiptop-ip-architecture.xml"/>
       </references>
     </references>
