@@ -27,7 +27,7 @@
     <keyword>space</keyword>
     <keyword>deep space</keyword>
     <abstract>
-      <t>Deep space communications involve long delays (e.g., Earth to Mars has one-way delays 4-24 minutes) and intermittent communications, mainly because of orbital dynamics. This document lists operational methods to enable local DNS name resolving on celestial body networks such that there are no real-time query and response flow to the authoritative name servers on (Earth) Internet.</t>
+      <t>Deep space communications involve long delays (e.g., Earth to Mars has one-way delays 4-24 minutes) and intermittent communications, mainly because of orbital dynamics. This document lists operational methods to enable local DNS name resolving on celestial body networks such that there are no real-time query and response flow to name servers on (Earth) Internet.</t>
     </abstract>
   </front>
   <middle>
@@ -37,20 +37,12 @@
         <xref target="I-D.ietf-tiptop-usecase"/> provides more details about key characteristics of deep space communications and the use case of networking. </t>
       <t><xref target="I-D.many-tiptop-ip-architecture"/> discusses the use of the whole IP stack in this context. Domain name requests and response over long delays generate timeouts and when there is no reachability to the DNS server, requests will not be answered. Therefore, on celestial bodies IP networks, a local DNS infrastructure with all the needed names and values stored locally is needed. </t>
       <t>While this document uses deep space as the base use case, it may apply to other "mostly" isolated networks, such as IoT networks. Mostly isolated means that most of the time the network is isolated, but there are times where it is not isolated and then may receive zone transfers or other means to populate or update its name caches.</t>
-      <section anchor="requirements">
-        <name>Requirements Language</name>
-        <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL",
-          "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT
-          RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be
-          interpreted as described in BCP 14 <xref target="RFC2119"/>
-          <xref target="RFC8174"/> when, and only when, they appear in
-          all capitals, as shown here.</t>
-      </section>
+      <t>Various scenarios of deployments depending on the distance of the celestial body and the coverage of orbiters are described in <xref target="I-D.ietf-tiptop-usecase"/>. This document describes on the hardest case (delays too long and intermittence) and then <xref target="scenarios"/> discusses some specific ones.</t>
     </section>
       <section>
           <name>Use Case and Requirements</name>
-          <t>Given all the investment in technology, protocol, services, infrastructure, scrutiny and governance in place, the ability to use the current Internet DNS Root with DNSSEC<xref target="RFC9364"/> even in deep space has a lot of merit compared to starting another root with another trust chain. In order to achieve that goal, which is to keep the same DNS root and the current DNSSEC trust chain in deep space, domain data and all related keys necessary for local validation should also be stored locally.</t>
-            <t>The requirements and characteristics for this document use case are:</t>
+          <t>Given all the investment in technology, protocol, services, infrastructure, scrutiny and governance in place, the ability to use the current Internet DNS Root with DNSSEC<xref target="RFC9364"/> in deep space has a lot of merit compared to starting another root with another trust chain. In order to achieve that goal, which is to keep the same DNS root and the current DNSSEC trust chain in deep space, domain data and all related keys necessary for local validation should also be stored locally.</t>
+            <t>The requirements of this document use case are:</t>
             <ul>
               <li>inability to do real-time DNS queries to the Internet DNS infrastructure from space</li>
               <li>domains used in deep space are under the same unique DNS root<xref target="RFC2826"/>, deployed under agreed community requirements<xref target="RFC7720"/></li>
@@ -62,7 +54,7 @@
       </section>
     <section>
       <name>Possible Approaches</name>
-      <t>This section presents various approaches that should meet the requirements set in the previous section. These approaches use the <xref target="RFC8806"/> approach for root zones, but augment it for the whole needed name hierarchy.</t>
+      <t>This section presents various approaches that may meet the requirements set in the previous section. These approaches use the <xref target="RFC8806"/> approach for root zones, but augment it for the whole needed name hierarchy.</t>
       <t>All approaches share similar naming infrastructure on the target celestial body network:</t>
       <ul>
         <li>One or more authoritative name server.</li>
@@ -71,13 +63,15 @@
         <li>DNSSEC verifying resolvers have the root trust anchor<xref target="trust-anchor"/> in their configuration.</li>
       </ul>
       <t>"Target network" used in this document means the celestial body network.</t>
-      <t>It should be noted that, with proper planning and careful consideration, these approaches are not exclusive and may be deployed over time.</t>
+      <t>It should be noted that, with proper planning and careful consideration, the following approaches are not exclusive and may be deployed over time.</t>
       <section>
         <name>Pre-walk of all needed names</name>
-        <t>If one assumes that all names that will be used on the target network are known in advance, then queries walking the tree from the root down to the final name of all needed names can be done on Internet and the responses saved in a file, together with the appropriate DNSSEC records (TBD: should we list those: aka RRSIG, DS, DNSKEY). The records should contain values that are relevant to the celestial body network. For example, an IP address record such as an A or AAAA record should resolve to an IP address relevant and reachable from the target network.</t>
+        <t>If one assumes that all names that will be used on the target network are known in advance, then queries walking the tree from the root down to the final name of all needed names can be done on Internet and the responses saved in a file, together with the appropriate DNSSEC records. The records should contain values that are relevant to the celestial body network. For example, an IP address record such as an A or AAAA record should resolve to an IP address relevant and reachable from the target network.</t>
+        <t>To achieve this, a list of all needed names is saved and used as input for the above process.</t>
         <t>The resulting file containing all the records is uploaded to the authoritative name servers on the target network. </t>
         <t>The authoritative name servers should serve the root zone and all required domain tree records underneath as found above.</t>
-        <t>If a name used on the celestial body network by the hosts or applications is not in the uploaded file served by the local name servers, then the request will timeout.</t>
+        <t>Glue records, which are not signed, should be changed to the IP addresses of the authoritative name server on the target network</t>
+        <t>If a name used on the celestial body network by the hosts or applications is not in the uploaded file served by the local name servers, then the request will timeout or error.</t>
         <t>If all needed DNSSEC material is not fully uploaded, then DNSSEC validation will fail.</t>
         <t>A method for syncing and updating all the updated records to the isolated network should be put in place, at the appropriate frequency. Typical DNS zone tranfer mechanism may not be suitable because TCP transport is likely not possible in deep space. In this case, other file transfer mechanisms may be used.</t>
         <t>Some DNS records have values containing other names, such as the SRV and CNAME records. The referenced names should also be "walked".</t>
@@ -85,7 +79,7 @@
       </section>
       <section>
         <name>Pre-fetch of all zones in the needed name hierarchy</name>
-        <t>If one assumes that the name hierarchy is known for all needed names used on the target network and if the operator of the DNS infrastructure on the target network has access to all the zones of the hierarchy, then these zones are saved. They may need to be modified so that the NS glue records point to the appropriate local authoritative name servers. These zones are then uploaded to the authoritative name servers on the target network.</t>
+        <t>If one assumes that the name hierarchy is known for all needed names used on the target network and if the operator of the DNS infrastructure on the target network has access to all the zones of the hierarchy, then these zones are saved. They need to be modified so that the NS glue records, not signed, point to the appropriate local authoritative name servers. These zones are then uploaded to the authoritative name servers on the target network.</t>
         <t>The authoritative name servers should serve the root zone and all zones discussed above.</t>
         <t>This approach have less risk of missing a name since all names under the hierarchy are uploaded. However, if the zones are too big compared to the transfer capacity to the target network, then this solution is not appropriate. Moreover, it may be possible that most of the names in the uploaded zones will not be used, therefore it is a possible waste of resources (bandwidth, memory/cpu on server, ...). Therefore, careful consideration on the chosen hierarchy, specially the top-level domain, is relevant. Given deep space relative limited use networks, it would make sense to dedicate some top-level domain or subdomain for its needs. However, it is possible to remove all the non-needed record from the zones before uploading them to the target network DNS infrastructure, but then if some names are missing in this removal, the same issues from the previous approach appear. Moreover, DNSSEC validation will fail if records are removed from a signed zone.</t>
         <t>If all needed DNSSEC material is not fully uploaded, then DNSSEC validation will fail.</t>
@@ -94,8 +88,9 @@
       </section>
       <section>
           <name>Special zone</name>
-          <t>Instead of fetching a whole zone containing a lot of non useful records, the manager of that zone creates a special version of the zone containing only the useful records and sign it. It is then sent to the target network DNS infrastructure. This approach is a combination of the previous approaches, but require careful management of the two versions of the zone. In terms of deployment and operations, it has the same properties as the zone pre-fetch approach.
+          <t>Instead of fetching a whole zone containing a lot of non useful records, the manager of that zone creates a special version of the zone containing only the useful records and sign it using the same key used for the "Earth Internet" version of the zone, so that DS records in the parent zone remain unchanged. It is then sent to the target network DNS infrastructure. This approach is a combination of the previous approaches, but require careful management of the two versions of the zone. In terms of deployment and operations, it has the same properties as the zone pre-fetch approach.
           </t>
+          <t>Another variation is to dedicate a subdomain to the celestial body network, under a domain controlled by the entity. For example, moon.example.net, where example.net is managed by the operator of the Moon DNS infrastructure. In this case, names useful for Moon are located in a single zone.</t>
       </section>
       <section>
           <name>Local zones</name>
@@ -103,25 +98,95 @@
           </t>
       </section>
     </section>
-    <section>
+    <section anchor="xferconsiderations">
       <name>Zone Transfer Considerations</name>
       <t>If DNS zone transfer is possible over the link between the Internet and the target network, then incremental zone transfer (aka IXFR) might be advised to minimize the use of the bandwidth and also minimize the data merge on the target DNS server.</t>
       <t>Current zone transfer mechanisms, such as AXFR, IXFR, rsync or ftp, all use TCP as transport. However, TCP is not suitable for deep space. Therefore, it is recommended to use AXFR/IXFR over profiled<xref target="I-D.many-tiptop-quic-profile"/> QUIC<xref target="RFC9250"/>.</t>
-      <t>If DNS zone transfer is not possible or not optimal, than another file transfer mechanism such as HTTP over QUIC should be used.</t>
+      <t>If DNS zone transfer is not possible or not optimal, than another file transfer mechanism such as HTTP over profiled QUIC should be used.</t>
     </section>
-    <section>
+    <section anchor="dnssec">
       <name>DNSSEC Considerations</name>
-      <t>Zones are signed at various frequencies based on the operator policies. If a signature on a record has expired, then DNSSEC validation will fail. Therefore, the frequency of uploading updated records should be higher than the frequency of the signing of the uploaded zones.</t>
+      <t>Zones are signed at various frequencies based on the operator policies. If a signature on a record has expired, then DNSSEC validation will fail.  The quantity that bounds how long the target network can operate while isolated is therefore the validity period of the RRSIG records covering the data it serves, that is the interval between the signature inception and expiration times, and not any TTL. The re-supply period from Earth should be shorter than the shortest signature validity period present in the hierarchy being served, with margin for missed contact opportunities.</t>
       <t>Similarly, the key lifetimes, including the root zone anchor, should be monitored to make sure that new keys are uploaded before the old ones expire.</t>
+      <t>The automated trust anchor update mechanism of <xref target="RFC5011"/> cannot be relied upon on an isolated network. It requires a resolver to query the trust point at an interval derived from the DNSKEY TTL and the signature validity period, which in current root zone practice amounts to at least one query per day, to retry on failure at a comparable cadence, and to observe add and remove hold-down times of thirty days. A network that is out of contact for days or weeks cannot satisfy those timers. Trust anchors must therefore be established on Earth and delivered to the target network as part of the managed data set.</t>
+      <t>Because the trust anchor is the root of all validation on the target network, it must not be accepted solely on the basis of the transfer that carried it. The receiving side should verify each key against the DS records published out of band by IANA <xref target="trust-anchor"/>, by recomputing the digest of the DNSKEY as described in <xref section="5.1.4" sectionFormat="of" target="RFC4034"/> and requiring it to match a published value before the key is installed as an anchor. This check uses only the published digests and the key material itself, and so does not depend on the DNS that is about to be trusted.</t>
       <t>Finally, the DNSSEC RR TTL values need to be longer than the update times.</t>
+      <t>If the parent zones are not copied in full, then negative answers can no longer be validated. This consequence need to be assessed by the missions.</t>
     </section>
     <section>
-        <name>Crusing Spacecraft Considerations</name>
-        <t>This document assumes a minimal infrastructure on a celestial body surface and vicinty network. As discussed in <xref target="I-D.ietf-tiptop-usecase"/>, there are other instances of IP networks in deep space. One of them is a cruising spacecraft which has non-continuous connectivity to Earth using a direct point-to-point link to Earth ground stations. A cruising spacecraft typically have a local IP network to connect the various payloads and computers together. Names may be used on the onboard network, either by a simple infrastructure as described in this document, or by other simpler means such as a static file distributed on all on-board computers. When the spacecraft lands or connects to an infrastructure network such as a celestial body surface network, some names may need to be updated to use the local DNS infrastructure. The transition is not discussed in this document.</t>
+        <name>ZoneMD Considerations</name>
+        <t>When glue records are changed in a zone, the ZoneMD <xref target="RFC8976"/> digest is invalidated. Therefore, target network authoritative servers importing the zone should disable the ZoneMD check or the ZONEMD record should be removed prior to import.</t>
     </section>
     <section>
       <name>Network Operations Considerations</name>
       <t>Even with careful management, there is some probability that some applications or host on the target network will query names that were uploaded to the local DNS infrastructure, but refer to services or IP addresses that are not reachable from the target network. If the target network do have intermittent IP connectivity to Internet but the link is not appropriate for live queries, such as long delays in deep space, costly bandwidth or very small time window of reachability, then the network may try to route the packets to the Internet. Therefore, a mechanisms to signal unreachability may be appropriate to be setup at the edge of the target network.</t>
+    </section>
+    <section anchor="scenarios">
+        <name>Deployment Scenarios</name>
+        <t>Various scenarios of deployments depending on the distance of the celestial body and the coverage of orbiters are described in <xref target="I-D.ietf-tiptop-usecase"/>. This document describes the hardest cases. This section describes some specific ones that are typically easier.</t>
+        <section>
+            <name>Crusing Spacecraft (CS)</name>
+            <t>This document assumes a minimal infrastructure on a celestial body surface and vicinty network. As discussed in <xref target="I-D.ietf-tiptop-usecase"/>, there are other instances of IP networks in deep space. One of them is a cruising spacecraft which has non-continuous connectivity to Earth using a direct point-to-point link to Earth ground stations. A cruising spacecraft typically have a local IP network to connect the various payloads and computers together. Names may be used on the onboard network, either by a simple infrastructure as described in this document, or by other simpler means such as a static file distributed on all on-board computers. When the spacecraft lands or connects to an infrastructure network such as a celestial body surface network, some names may need to be updated to use the local DNS infrastructure. This transition is not discussed in this document.</t>
+        </section>
+        <section>
+            <name>Moon Full Connectivity (LF)</name>
+            <t>A Moon surface network always reachable from Earth because of a sufficient number of orbiters enabling full connectivity, provides a simpler case, as DNS queries and responses could go through the deep space links with an RTT of less than 4 seconds. DNS resolvers with caches on the surface network can then be used to optimize the name resolution traffic. However, if full connectivity is lost for some temporary windows, then DNS resolution may not work depending on the cache richness and RR TTLs. A more reliable infrastructure would be the one described in this document.</t>
+        </section>
+        <section>
+            <name>Moon Intermittent Connectivity (LI)</name>
+            <t>A Moon surface network is reachable from Earth only during certain periods. Given an RTT of less than 4 seconds, DNS resolvers with caches on the surface network can then be used and DNS queries goes through the deep space links to Earth and responses back. If resource records TTL are lower than the longest intermittence interval, then those RR will be timeout in the cache, disabling name resolution for those names. Therefore, while this solution looks simpler, it is fragile and not recommended.</t>
+        </section>
+    </section>
+    <section anchor="procedure">
+      <name>Example Procedure</name>
+      <t>This section gives an example procedure to build the minimal set of zones with which a resolver on the target network validates every name under a celestial zone against the Internet root trust anchor, without any query leaving the target network. It uses "moon.example.net" as the celestial zone, operated by the operator of "example.net", and M as the address of the authoritative name server on the target network. The zones to provision are the root zone, "net", "example.net" and "moon.example.net".</t>
+      <t>Prerequisites: "example.net" is signed and its DS record is published in the "net" zone; the root trust anchor has been verified as described in <xref target="dnssec"/> and is delivered to the target network.</t>
+      <ol>
+        <li>
+          <t>The operator builds the zone "moon.example.net" on Earth, as a complete zone signed. It contains its SOA and NS records, the address M for its name server, and all the names used on the target network. Its signature validity period should exceed the longest expected isolation period, with margin. The operator computes its DS record.</t>
+          <artwork><![CDATA[
+moon.example.net.        SOA   ns1.moon.example.net. hostmaster.example.net. (...)
+moon.example.net.        NS    ns1.moon.example.net.
+ns1.moon.example.net.    A     M
+rover1.moon.example.net. A     <address on the target network>
+]]></artwork>
+        </li>
+        <li>
+          <t>The operator builds the celestial edition of "example.net" on Earth and signs it with the same keys as the Earth edition, so that it validates under the DS record already published in "net". The address records of all the name servers listed at the apex are set to M. The edition contains the delegation of "moon.example.net" with its DS record and glue, and any other names of "example.net" used on the target network. The operator verifies that its key signing key still matches the DS record published in "net".</t>
+          <artwork><![CDATA[
+example.net.             SOA      (...)
+example.net.             NS       ns1.example.net.
+ns1.example.net.         A        M
+example.net.             DNSKEY   <same keys as the Earth edition>
+moon.example.net.        NS       ns1.moon.example.net.
+moon.example.net.        DS       <from step 1>
+ns1.moon.example.net.    A        M
+]]></artwork>
+        </li>
+        <li>
+          <t>Partial copies of the parent zones "net" and the root zone are built on Earth, from responses obtained directly from their authoritative servers rather than from a resolver. Each partial copy contains:</t>
+          <ul>
+            <li>unmodified, each with its RRSIG records: the SOA, NS and DNSKEY RRsets at the apex, and the DS RRset of the child zone on the path ("example.net" in "net", "net" in the root zone);</li>
+            <li>the delegation NS RRset of that child zone, which is unsigned;</li>
+            <li>glue address records, unsigned and set to M, for the name servers of that child zone and for the name servers listed at the apex of the zone itself, since an authoritative server will not load a zone whose in-zone name servers have no address.</li>
+          </ul>
+          <t>All other records, including the other delegations, the NSEC or NSEC3 records and the ZONEMD record, are omitted.</t>
+        </li>
+        <li>
+          <t>All four zones are loaded on the authoritative name server on the target network, as primary zones loaded from files. The resolvers on the target network are configured with the root trust anchor and with M as the address of the root zone.</t>
+        </li>
+        <li>
+          <t>Before delivery, the set is verified on Earth with an isolated validating resolver pointed at a copy of the server: every provisioned name must validate, and no query may be sent to any address other than M, including after the resolver has obtained the NS RRsets of the zones.</t>
+        </li>
+        <li>
+          <t>The set is delivered again before the first of its signatures expires.</t>
+        </li>
+      </ol>
+      <t>With this set, negative answers for other names in the partial parent zones cannot be validated, and the names of the name servers of the parent zones cannot be resolved on the target network. Neither affects the names under "moon.example.net". Each partial parent zone contains a few signed RRsets, one delegation and the glue for its own and its child's name servers, which is a small fraction of the complete zone.</t>
+    </section>
+    <section>
+        <name>New TLD for Deep Space</name>
+        <t>Given the various considerations discussed in this document, a specific TLD for deep space would simplify many issues, such as signature expiration values more aligned with the expected period of intermittence. However, this specification works with or without a new TLD, therefore do not provide any recommendation on creating a new TLD or not, as well as its tree structure.</t>
     </section>
     <section anchor="IANA">
       <name>IANA Considerations</name>
@@ -130,23 +195,23 @@
     <section anchor="Security">
       <name>Security Considerations</name>
       <t>By expanding the use of the same Internet DNS root to space, the space IP network naming infrastructure is then secured at the same level as on Internet.</t>
+      <t>That equivalence depends on the trust anchor held on the target network being genuine. Since the automated update mechanism of <xref target="RFC5011"/> cannot operate as discussed in <xref target="dnssec"/>, the anchor is delivered as managed data, which makes the delivery path part of the trust model. Verifying each key against the digests published out of band by IANA before installing it, as described in <xref target="dnssec"/>, keeps the decision to trust a key independent of the channel that carried it and of the DNS being bootstrapped.</t>
+      <t>Changing glue records disable the use of ZoneMD that could be used on the celestial body DNS infrastructure to verify zones on loading.</t>
     </section>
   </middle>
   <back>
     <references>
       <name>References</name>
       <references>
-        <name>Normative References</name>
-        <xi:include href="https://www.rfc-editor.org/refs/bibxml/reference.RFC.2119.xml"/>
-        <xi:include href="https://www.rfc-editor.org/refs/bibxml/reference.RFC.8174.xml"/>
-        <xi:include href="https://www.rfc-editor.org/refs/bibxml/reference.RFC.9364.xml"/>
-      </references>
-      <references>
         <name>Informative References</name>
         <xi:include href="https://www.rfc-editor.org/refs/bibxml/reference.RFC.2826.xml"/>
+        <xi:include href="https://www.rfc-editor.org/refs/bibxml/reference.RFC.4034.xml"/>
+        <xi:include href="https://www.rfc-editor.org/refs/bibxml/reference.RFC.5011.xml"/>
         <xi:include href="https://www.rfc-editor.org/refs/bibxml/reference.RFC.7720.xml"/>
         <xi:include href="https://www.rfc-editor.org/refs/bibxml/reference.RFC.8806.xml"/>
+        <xi:include href="https://www.rfc-editor.org/refs/bibxml/reference.RFC.8976.xml"/>
         <xi:include href="https://www.rfc-editor.org/refs/bibxml/reference.RFC.9250.xml"/>
+        <xi:include href="https://www.rfc-editor.org/refs/bibxml/reference.RFC.9364.xml"/>
         <reference anchor="trust-anchor" target="https://www.iana.org/dnssec/files">
           <front>
             <title>Trust Anchors and Keys</title>
@@ -164,13 +229,13 @@
       <name>Alternative Name Resolution Approaches</name>
       <t>Alternatives of using DNS include static distribution of name-to-address mappings and the direct use of IP addresses without names.
       </t>
-      <t>TIPTOP nodes MAY be provisioned with static host name mappings (e.g., "hosts.txt"-style files), enabling local resolution without network queries. Updates are distributed periodically through TBD out-of-band mechanisms between celestial networks and Earth-based infrastructure.
+      <t>TIPTOP nodes may be provisioned with static host name mappings (e.g., "hosts.txt"-style files), enabling local resolution without network queries. Updates are distributed periodically through TBD out-of-band mechanisms between celestial networks and Earth-based infrastructure.
       </t>
-      <t>In small or constrained celestial networks, applications MAY use IP addresses directly, avoiding any naming system. This removes resolution dependencies entirely but reduces flexibility, human usability, error prone by typing IPv6 addresses, and abstraction from addressing changes. It will also disable the use of a large variety of DNS record types.
+      <t>In small or constrained celestial networks, applications may use IP addresses directly, avoiding any naming system. This removes resolution dependencies entirely but reduces flexibility, human usability, error prone by typing IPv6 addresses, and abstraction from addressing changes. It will also disable the use of a large variety of DNS record types.
       </t>
       <t>These approaches are simple and robust to disconnection, but do not scale to large or dynamic TIPTOP deployments, introduce update latency (for static mappings), and lack DNS capabilities such as delegation, hierarchical naming, record types, caching control, and DNSSEC.
       </t>
-      <t>Operators of TIPTOP deployments SHOULD consider namespace size and dynamics, update distribution frequency between celestial networks and Earth-based infrastructure, administrative boundaries, and data integrity mechanisms. Static or IP-only approaches MAY be sufficient for small, stable celestial networks, but DNS-based solutions provide greater flexibility for larger or evolving TIPTOP deployments.
+      <t>Operators of TIPTOP deployments should consider namespace size and dynamics, update distribution frequency between celestial networks and Earth-based infrastructure, administrative boundaries, and data integrity mechanisms. Static or IP-only approaches may be sufficient for small, stable celestial networks, but DNS-based solutions provide greater flexibility for larger or evolving TIPTOP deployments.
       </t>
       <t>Hybrid models can combine static distribution of a small set of nodes in a static mapping file such as /etc/hosts with DNS-based mechanisms. For example, nodes may be provisioned with hosts files for critical infrastructure, while DNS data is distributed as discussed in this document, with a name resolution preference set properly.
       </t>
