@@ -245,7 +245,7 @@ ns1.moon.example.net.    A        M
     </section>
     <section anchor="Acknowledgements" numbered="false">
       <name>Acknowledgements</name>
-      <t>The idea of the pre-walk was suggested by Warren Kumari. The idea of a special zone was suggested by Mark Andrews. All errors are authors'. The following people have provided valuable feedback and comments, in no specific order: Lloyd Wood, Warren Kumari.</t>
+      <t>The idea of the pre-walk was suggested by Warren Kumari. The idea of a special zone was suggested by Mark Andrews. All errors are authors'. The following people have provided valuable feedback and comments, in no specific order: Lloyd Wood, Warren Kumari, Stephane Bortzmeyer, Wes Hardaker.</t>
     </section>
   </back>
 </rfc>
