@@ -115,11 +115,11 @@
     </section>
     <section>
         <name>ZoneMD Considerations</name>
-        <t>When glue records are changed in a zone, the ZoneMD <xref target="RFC8976"/> digest is invalidated. Therefore, target network authoritative servers importing the zone should disable the ZoneMD check or the ZONEMD record should be removed prior to import.</t>
+        <t>Recursive resolvers that use pre-fetching of data to make use of locally cached DNS data, such as with the DNS root, must ensure that the ZONEMD record When glue records are changed in a zone, the ZoneMD <xref target="RFC8976"/> is checked within the zone data before using the contents of the retrieved zone.</t>
     </section>
     <section>
       <name>Network Operations Considerations</name>
-      <t>Even with careful management, there is some probability that some applications or host on the target network will query names that were uploaded to the local DNS infrastructure, but refer to services or IP addresses that are not reachable from the target network. If the target network do have intermittent IP connectivity to Internet but the link is not appropriate for live queries, such as long delays in deep space, costly bandwidth or very small time window of reachability, then the network may try to route the packets to the Internet. Therefore, a mechanisms to signal unreachability may be appropriate to be setup at the edge of the target network.</t>
+      <t>Even with careful management, there is some probability that some applications or hosts on the target network will query names that were pre-fetched by local resolvers on the target network, but refer to services or IP addresses that are not reachable from the target network. If the target network does have intermittent IP connectivity to Internet, but the link is not appropriate for live queries (because of long delays in deep space, expensive bandwidth, or very small time window of reachability, then the network may try to route DNS requests packets to the Internet which will likely result in timeouts and SERVFAIL responses. Therefore, a mechanisms to signal unreachability may be appropriate to be setup at the edge of the target network.</t>
     </section>
     <section anchor="scenarios">
         <name>Deployment Scenarios</name>
