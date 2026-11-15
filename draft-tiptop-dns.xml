@@ -130,11 +130,11 @@
         </section>
         <section>
             <name>Moon Full Connectivity (LF)</name>
-            <t>A Moon surface network always reachable from Earth because of a sufficient number of orbiters enabling full connectivity, provides a simpler case, as DNS queries and responses could go through the deep space links with an RTT of less than 4 seconds. DNS resolvers with caches on the surface network can then be used to optimize the name resolution traffic. However, if full connectivity is lost for some temporary windows, then DNS resolution may not work depending on the cache richness and RR TTLs. A more reliable infrastructure would be the one described in this document.</t>
+            <t>A Moon surface network always reachable from Earth because of a sufficient number of orbiters enabling full connectivity, provides a simpler case, as DNS queries and responses could go through the deep space links with an RTT of less than 4 seconds. Resolvers will need to be configured with longer timeouts than traditional earth networks.  DNS resolvers with caches on the surface network can then be used to optimize the name resolution traffic. However, if full connectivity is lost for some temporary windows, then DNS resolution may not work depending on the cache richness and RR TTLs. A more reliable infrastructure would be the one described in this document.</t>
         </section>
         <section>
             <name>Moon Intermittent Connectivity (LI)</name>
-            <t>A Moon surface network is reachable from Earth only during certain periods. Given an RTT of less than 4 seconds, DNS resolvers with caches on the surface network can then be used and DNS queries goes through the deep space links to Earth and responses back. If resource records TTL are lower than the longest intermittence interval, then those RR will be timeout in the cache, disabling name resolution for those names. Therefore, while this solution looks simpler, it is fragile and not recommended.</t>
+            <t>A Moon surface network is reachable from Earth only during certain periods. Given an RTT of less than 4 seconds, DNS resolvers with caches on the surface network can then be used and DNS queries goes through the deep space links to Earth and responses back. If resource records TTL are lower than the longest intermittence interval, then those RR will be timeout in the cache unless serve stale <xref target="RFC8767" /> is configured for use, disabling name resolution for those names. Therefore, while this solution looks simpler, it is fragile and not recommended.</t>
         </section>
     </section>
     <section anchor="procedure">
