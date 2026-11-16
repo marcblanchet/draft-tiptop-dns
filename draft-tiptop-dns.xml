@@ -86,16 +86,10 @@
         <t>A method for syncing and updating all the updated records to the target network should be put in place, at the appropriate frequency. Typical DNS zone tranfer mechanism may not be suitable because TCP transport is likely not possible in deep space. In this case, other file transfer mechanisms may be used.</t>
         <t>In the context of multiple operators on the target network, each one may do this process independently for its own zones, without having to rely on another party.</t>
       </section>
-      <section>
-          <name>Special zone</name>
-          <t>Instead of fetching a whole zone containing a lot of non useful records, the manager of that zone creates a special version of the zone containing only the useful records and sign it using the same key used for the "Earth Internet" version of the zone, so that DS records in the parent zone remain unchanged. It is then sent to the target network DNS infrastructure. This approach is a combination of the previous approaches, but require careful management of the two versions of the zone. In terms of deployment and operations, it has the same properties as the zone pre-fetch approach.
-          </t>
-          <t>Another variation is to dedicate a subdomain to the celestial body network, under a domain controlled by the entity. For example, moon.example.net, where example.net is managed by the operator of the Moon DNS infrastructure. In this case, names useful for Moon are located in a single zone.</t>
-      </section>
-      <section>
-          <name>Local zones</name>
-          <t>Local zones can be deployed on the target networks. However, they may not be secured by DNSSEC. Moreover, the danger of name collision over time with the Earth Internet DNS can create a big operational issue later.
-          </t>
+      <section anchor="internaltld">
+          <name>.internal Local Zones</name>
+          <t>Authoritative local zones can be deployed on the target networks. However, in order to be secured by DNSSEC they will need a separate trust anchor for validation by resolvers making use of them.  The danger of name collision with the Earth Internet DNS can create a big operational issues if not properly coordinated.</t>
+          <t>ICANN's recommended mechanism for establishing locally controlled authoritative names  is to make use of a sub-domain within the non-existent ".internal" TLD.  Specifically, after a recommendation of the Security and Stability Advisory Committee (<xref target="sac113" />), the ICANN board passed resolution 2024.07.29.06 (<xref target="internalresolution" />) which set aside the .internal TLD for use within private networks, to ensure no conflicts would occur within the rest of the DNS tree.  Conflicts may still arise within groups using the .internal TLD, and it is recommended that coordination occurs between missions such that each celestial network uses a sub-domain within the .internal non-TLD to further minimize collisions (for example "mars.internal").</t>
       </section>
     </section>
     <section anchor="xferconsiderations">
@@ -222,6 +216,22 @@ ns1.moon.example.net.    A        M
         <xi:include href="https://bib.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-tiptop-usecase.xml"/>
         <xi:include href="https://bib.ietf.org/public/rfc/bibxml3/reference.I-D.many-tiptop-quic-profile.xml"/>
         <xi:include href="https://bib.ietf.org/public/rfc/bibxml3/reference.I-D.many-tiptop-ip-architecture.xml"/>
+        <reference anchor="sac113" target="https://itp.cdn.icann.org/en/files/security-and-stability-advisory-committee-ssac-reports/sac-113-en.pdf">
+          <front>
+            <title>SSAC Advisory on Private-Use TLDs</title>
+            <author>
+              <organization>ICANN Security and Stability Advisory Committee</organization>
+            </author>
+          </front>
+        </reference>
+        <reference anchor="internalresolution" target="">
+          <front>
+            <title>ICANN board resolution 2024.07.29.06</title>
+            <author>
+              Internet Corporation for Assigned Names and Numbers
+            </author>
+          </front>
+        </reference>
       </references>
     </references>
     <section anchor="alternative-approaches" numbered="true">
