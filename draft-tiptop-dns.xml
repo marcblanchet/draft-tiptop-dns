@@ -37,19 +37,19 @@
         <xref target="I-D.ietf-tiptop-usecase"/> provides more details about key characteristics of deep space communications and the use case of networking. </t>
       <t><xref target="I-D.many-tiptop-ip-architecture"/> discusses the use of the whole IP stack in this context. Domain name requests and response over long delays generate timeouts and when there is no reachability to the DNS server, requests will not be answered. Therefore, on celestial bodies IP networks, a local DNS infrastructure with all the needed names and values stored locally is needed. </t>
       <t>While this document uses deep space as the base use case, it may apply to other "mostly" isolated networks, such as IoT networks. Mostly isolated means that most of the time the network is isolated, but there are times where it is not isolated and then may receive zone transfers or other means to populate or update its name caches.</t>
-      <t>Various scenarios of deployments depending on the distance of the celestial body and the coverage of orbiters are described in <xref target="I-D.ietf-tiptop-usecase"/>. This document describes on the hardest case (delays too long and intermittence) and then <xref target="scenarios"/> discusses some specific ones.</t>
+      <t>Various scenarios of deployments depending on the distance of the celestial body and the coverage of orbiters are described in <xref target="I-D.ietf-tiptop-usecase"/>. The first sections of this document describes on the hardest case (delays too long and intermittence) and then subsequently (<xref target="scenarios"/>) discusses more specific ones.</t>
     </section>
       <section>
           <name>Use Case and Requirements</name>
-          <t>Given all the investment in technology, protocol, services, infrastructure, scrutiny and governance in place, the ability to use the current Internet DNS Root with DNSSEC<xref target="RFC9364"/> in deep space has a lot of merit compared to starting another root with another trust chain. In order to achieve that goal, which is to keep the same DNS root and the current DNSSEC trust chain in deep space, domain data and all related keys necessary for local validation should also be stored locally.</t>
+          <t>Given all the investment in technology, protocol, services, infrastructure, scrutiny and governance in place, the ability to use the current Internet DNS Root with DNSSEC<xref target="RFC9364"/> in deep space has a lot of merit compared to using a split DNS tree with an alternate DNS root and trust chain. In order to achieve this goal, the necessary domain data required for full DNS resolution, including the necessary related DNSSEC keys, must be locally available for validation and use.</t>
             <t>The requirements of this document use case are:</t>
             <ul>
-              <li>inability to do real-time DNS queries to the Internet DNS infrastructure from space</li>
-              <li>domains used in deep space are under the same unique DNS root<xref target="RFC2826"/>, deployed under agreed community requirements<xref target="RFC7720"/></li>
-              <li>ability to sometimes reach the celestial body network name servers from Earth Internet to update their data cache</li>
+              <li>given the inability to do real-time DNS queries to the Internet DNS infrastructure from space, ability to do real-time DNS queries using local infrastructure.</li>
+              <li>domains used in deep space are under the Internet's unique DNS root<xref target="RFC2826"/>, deployed under agreed community requirements<xref target="RFC7720"/></li>
+              <li>ability to sometimes reach the celestial body network name servers from Earth Internet in order to update local caches of DNS data.</li>
               <li>multiple network and DNS operators may exist on the celestial body network, each managing their own namespace and/or caches</li>
-              <li>management of DNS servers and zones are done from Earth, since no human is expected to do server administration on celestial body network</li>
-              <li>Celestial body network autonomous DNS infrastructure to enable local resolution and DNSSEC validation</li>
+              <li>management of DNS servers and zones needs to be possible from Earth, since no human is expected to do server administration on celestial body network</li>
+              <li>celestial body network autonomous DNS infrastructure that supports local resolution and DNSSEC validation</li>
             </ul>
       </section>
     <section>
