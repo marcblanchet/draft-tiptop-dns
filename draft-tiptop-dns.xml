@@ -65,7 +65,7 @@
       <name>Possible Approaches</name>
       <t>This section presents various approaches that may meet the requirements set in the previous section. These approaches use a <xref target="RFC8806"/> (aka "LocalRoot" or "Hyperlocal Root") style approach for root zones, but augment it for the whole needed name hierarchy (many implementations of RFC8806 already support multiple zones).  RFC8806 specifies an exact mechanism that a resolver should use when implementing a local copy of the root zone.  However, existing resolver implementations do not support this exact mechanism, but instead implement the functionality using a number of internal methodologies.  From a DNS client's perspective, the end result is that a recursive resolver supporting pre-fetching of the DNS Root or other zones fundamentally looks like the information was already available within the recursive resolver's cache. Some implementations actually do, in fact, simply fetch a zone file and then inject the results into its cache. For simplicity in the rest of this document, we'll refer to this concept as "pre-fetching a zone", regardless of how the implementation actually works internally.</t>
       <t>[Note: the DNSOP WG in the IETF is currently considering two potential update documents to RFC8806: draft-wkumari-dnsop-localroot-bcp and draft-hoffman-rootcache, though the call for adoption has not yet ended.  This note will be removed by the authors (and hopefully obsolete) before publication.]</t>
-      <t>A important consideration is how long the data in the local implementation remains valid and cached.  Implementations need to not expire entries from its cache that would degrade resolving queries in the target network.  Additionally, celestial body resolver implementations should serve stale data when they are unable to obtain fresh data due to network failures <xref target="8767" />.</t>
+      <t>A important consideration is how long the data in the local implementation remains valid and cached.  Implementations need to not expire entries from its cache that would degrade resolving queries in the target network.  Additionally, celestial body resolver implementations should serve stale data when they are unable to obtain fresh data due to network failures <xref target="RFC8767"/>.</t>
       <t>"Target network" used in this document means the celestial body network.</t>
       <t>All approaches share similar naming infrastructure on the target celestial body network:</t>
       <ul>
@@ -238,7 +238,7 @@ ns1.moon.example.net.    A        M
           <front>
             <title>ICANN board resolution 2024.07.29.06</title>
             <author>
-              Internet Corporation for Assigned Names and Numbers
+                <organization>Internet Corporation for Assigned Names and Numbers</organization>
             </author>
           </front>
         </reference>
