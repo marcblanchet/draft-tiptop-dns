@@ -54,35 +54,34 @@
       </section>
     <section>
       <name>Possible Approaches</name>
-      <t>This section presents various approaches that may meet the requirements set in the previous section. These approaches use the <xref target="RFC8806"/> approach for root zones, but augment it for the whole needed name hierarchy.</t>
+      <t>This section presents various approaches that may meet the requirements set in the previous section. These approaches use a <xref target="RFC8806"/> (aka "LocalRoot" or "Hyperlocal Root") style approach for root zones, but augment it for the whole needed name hierarchy (many implementations of RFC8806 already support multiple zones).  RFC8806 specifies an exact mechanism that a resolver should use when implementing a local copy of the root zone.  However, existing resolver implementations do not support this exact mechanism, but instead implement the functionality using a number of internal methodologies.  From a DNS client's perspective, the end result is that a recursive resolver supporting pre-fetching of the DNS Root or other zones fundamentally looks like the information was already available within the recursive resolver's cache. Some implementations actually do, in fact, simply fetch a zone file and then inject the results into its cache. For simplicity in the rest of this document, we'll refer to this concept as "pre-fetching a zone", regardless of how the implementation actually works internally.</t>
+      <t>[Note: the DNSOP WG in the IETF is currently considering two potential update documents to RFC8806: draft-wkumari-dnsop-localroot-bcp and draft-hoffman-rootcache, though the call for adoption has not yet ended.  This note will be removed by the authors (and hopefully obsolete) before publication.]</t>
+      <t>A important consideration is how long the data in the local implementation remains valid and cached.  Implementations need to not expire entries from its cache that would degrade resolving queries in the target network.  Additionally, celestial body resolver implementations should serve stale data when they are unable to obtain fresh data due to network failures <xref target="8767" />.</t>
+      <t>"Target network" used in this document means the celestial body network.</t>
       <t>All approaches share similar naming infrastructure on the target celestial body network:</t>
       <ul>
-        <li>One or more authoritative name server.</li>
-        <li>One or more resolvers using the above authoritative servers (or additional servers) in their hints/cache file.</li>
-        <li>hosts using the above resolvers.</li>
-        <li>DNSSEC verifying resolvers have the root trust anchor<xref target="trust-anchor"/> in their configuration.</li>
+        <li>one or more recursive resolvers configured to mirror necessary authoritative zone data, such as the DNS root zone.</li>
+        <li>DNSSEC verifying resolvers will have the root trust anchor <xref target="trust-anchor"/> in their configuration, along with a cached copy of root zone.  The authenticity root zone data will be verified using the ZONEMD record <xref target="RFC8976" /></li>
+        <li>hosts need to be configured to use these recursive resolvers.</li>
       </ul>
-      <t>"Target network" used in this document means the celestial body network.</t>
-      <t>It should be noted that, with proper planning and careful consideration, the following approaches are not exclusive and may be deployed over time.</t>
+      <t>It should be noted that, with proper planning and careful consideration, the following approaches are not exclusive and different techniques may be used in combination and deployed over time.</t>
       <section>
-        <name>Pre-walk of all needed names</name>
-        <t>If one assumes that all names that will be used on the target network are known in advance, then queries walking the tree from the root down to the final name of all needed names can be done on Internet and the responses saved in a file, together with the appropriate DNSSEC records. The records should contain values that are relevant to the celestial body network. For example, an IP address record such as an A or AAAA record should resolve to an IP address relevant and reachable from the target network.</t>
-        <t>To achieve this, a list of all needed names is saved and used as input for the above process.</t>
-        <t>The resulting file containing all the records is uploaded to the authoritative name servers on the target network. </t>
-        <t>The authoritative name servers should serve the root zone and all required domain tree records underneath as found above.</t>
-        <t>Glue records, which are not signed, should be changed to the IP addresses of the authoritative name server on the target network</t>
-        <t>If a name used on the celestial body network by the hosts or applications is not in the uploaded file served by the local name servers, then the request will timeout or error.</t>
-        <t>If all needed DNSSEC material is not fully uploaded, then DNSSEC validation will fail.</t>
-        <t>A method for syncing and updating all the updated records to the isolated network should be put in place, at the appropriate frequency. Typical DNS zone tranfer mechanism may not be suitable because TCP transport is likely not possible in deep space. In this case, other file transfer mechanisms may be used.</t>
-        <t>Some DNS records have values containing other names, such as the SRV and CNAME records. The referenced names should also be "walked".</t>
-        <t>This setup somewhat assumes that there is a single operator for the DNS authoritative infrastructure on the target network.</t>
+        <name>Pre-fetching of needed names and records</name>
+        <t>If one assumes that all class, query names, and query types that will be used on the target network are known in advance, then recursively pre-fetching the contents of these needed records can be done on Internet and the responses saved in a file, together with the appropriate DNSSEC records, for loading into the cache of a recursive resolver. The records should contain all combinations of information that are relevant to the celestial body network. For example, an IP address record such as an A or AAAA record should resolve to an IP address relevant and reachable from the target network, or MX records for mail servers running within the celestial network.</t>
+        <t>To achieve this, a list of all records fetched for needed query names, query types and query classes are saved and used as input for the above process.</t>
+        <t>The resulting file containing all the records is uploaded to the caching recursive resolvers on the target network.</t>
+        <t>The recursive resolvers with pre-populated caches should require no further communication with any distant authoritative servers, or any of the domain tree records off planet, in order to resolve names within the target network.</t>
+        <t>If a name used on the celestial body network by the hosts or applications is not in the uploaded file served by the local name servers, then the resolver handling the request will eventually timeout and return a SERVFAIL error.</t>
+        <t>If all needed DNSSEC material is not fully uploaded, then DNSSEC validation will fail, also resulting in a SERVFAIL error.</t>
+        <t>A method for syncing and updating all the updated records to the isolated network should be put in place, at the appropriate frequency. Typical DNS zone tranfer mechanisms (AXFR and IXFR) may not be suitable because TCP transport is likely not possible in deep space. In this case, other file transfer mechanisms may be used.</t>
+        <t>Some DNS records have values containing other names, such as the SRV and CNAME records. The referenced names should also be included with the data to be fetched and cached by the pre-fetching recursive resolvers.</t>
+        <t>Recursive resolvers that do not implement pre-fetching of required DNS data need to be configured as forwarding resolvers that forward requests to a recursive resolver that does.</t>
       </section>
       <section>
-        <name>Pre-fetch of all zones in the needed name hierarchy</name>
-        <t>If one assumes that the name hierarchy is known for all needed names used on the target network and if the operator of the DNS infrastructure on the target network has access to all the zones of the hierarchy, then these zones are saved. They need to be modified so that the NS glue records, not signed, point to the appropriate local authoritative name servers. These zones are then uploaded to the authoritative name servers on the target network.</t>
-        <t>The authoritative name servers should serve the root zone and all zones discussed above.</t>
-        <t>This approach have less risk of missing a name since all names under the hierarchy are uploaded. However, if the zones are too big compared to the transfer capacity to the target network, then this solution is not appropriate. Moreover, it may be possible that most of the names in the uploaded zones will not be used, therefore it is a possible waste of resources (bandwidth, memory/cpu on server, ...). Therefore, careful consideration on the chosen hierarchy, specially the top-level domain, is relevant. Given deep space relative limited use networks, it would make sense to dedicate some top-level domain or subdomain for its needs. However, it is possible to remove all the non-needed record from the zones before uploading them to the target network DNS infrastructure, but then if some names are missing in this removal, the same issues from the previous approach appear. Moreover, DNSSEC validation will fail if records are removed from a signed zone.</t>
-        <t>If all needed DNSSEC material is not fully uploaded, then DNSSEC validation will fail.</t>
+        <name>Pre-fetch of critical zones in the needed name hierarchy</name>
+        <t>If one assumes that the name hierarchy is known for all needed names used on the target network and if the operator of the DNS infrastructure on the target network has access to all the zones of the hierarchy, then the entire content of these zones can be pre-fetched and distributed to the target network's recursive resolvers.  At a minimum, the DNS root zone should be included in this set of zones</t>
+        <t>This approach have less risk of missing a name since all names under the hierarchy are uploaded. However, if the zones are too big compared to the transfer capacity to the target network, then this solution is not appropriate. Moreover, it may be possible that most of the names in the uploaded zones will not be used, therefore it is a possible waste of resources (bandwidth, memory/cpu on server, ...). Therefore, careful consideration of the chosen hierarchy, specially the top-level domains needed, is relevant. Given deep space relative limited use networks, it would make sense to dedicate some top-level domain or subdomain for mission needs (see the usage discussion of .internal below). However, it is possible to remove all the non-needed record from the zones before uploading them to the target network DNS infrastructure, but then if some names are missing in this removal, the same issues from the previous approach appear.</t>
+        <t>Note that DNSSEC validation will fail if the relevant validations records are removed from a signed zone.  Importantly, the NSEC or NSEC3 in a signed zone are needed to support denial-of-existence for returning NXDOMAIN or NODATA answers to unanswerable queries.  Recursive resolvers should make use of aggressive NSEC <xref target="RFC8198" /> for optimizing a local resolver's performance for query name and types which do not exist.</t>
         <t>A method for syncing and updating all the updated records to the target network should be put in place, at the appropriate frequency. Typical DNS zone tranfer mechanism may not be suitable because TCP transport is likely not possible in deep space. In this case, other file transfer mechanisms may be used.</t>
         <t>In the context of multiple operators on the target network, each one may do this process independently for its own zones, without having to rely on another party.</t>
       </section>
@@ -201,6 +200,8 @@ ns1.moon.example.net.    A        M
         <xi:include href="https://www.rfc-editor.org/refs/bibxml/reference.RFC.4034.xml"/>
         <xi:include href="https://www.rfc-editor.org/refs/bibxml/reference.RFC.5011.xml"/>
         <xi:include href="https://www.rfc-editor.org/refs/bibxml/reference.RFC.7720.xml"/>
+        <xi:include href="https://www.rfc-editor.org/refs/bibxml/reference.RFC.8198.xml"/>
+        <xi:include href="https://www.rfc-editor.org/refs/bibxml/reference.RFC.8767.xml"/>
         <xi:include href="https://www.rfc-editor.org/refs/bibxml/reference.RFC.8806.xml"/>
         <xi:include href="https://www.rfc-editor.org/refs/bibxml/reference.RFC.8976.xml"/>
         <xi:include href="https://www.rfc-editor.org/refs/bibxml/reference.RFC.9250.xml"/>
