@@ -20,6 +20,15 @@
         <email>marc.blanchet@viagenie.ca</email>
       </address>
     </author>
+    <author fullname="Wes Hardaker" initials="WH">
+      <organization>Google LLC</organization>
+      <address>
+          <postal>
+            <country>USA</country>
+          </postal>
+        <email>ietf@hardakers.net</email>
+      </address>
+    </author>
     <area>Internet</area>
     <workgroup>Internet Engineering Task Force</workgroup>
     <keyword>dtn</keyword>
@@ -255,7 +264,7 @@ ns1.moon.example.net.    A        M
     </section>
     <section anchor="Acknowledgements" numbered="false">
       <name>Acknowledgements</name>
-      <t>The idea of the pre-walk was suggested by Warren Kumari. The idea of a special zone was suggested by Mark Andrews. All errors are authors'. The following people have provided valuable feedback and comments, in no specific order: Lloyd Wood, Warren Kumari, Stephane Bortzmeyer, Wes Hardaker.</t>
+      <t>The idea of the pre-walk was suggested by Warren Kumari. The idea of a special zone was suggested by Mark Andrews. All errors are authors'. The following people have provided valuable feedback and comments, in no specific order: Lloyd Wood, Warren Kumari, Stephane Bortzmeyer.</t>
     </section>
   </back>
 </rfc>
